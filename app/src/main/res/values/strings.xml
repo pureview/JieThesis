@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">JiaJie</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="scan">scan</string>
+    <string name="log">log</string>
+    <string name="message">message</string>
+    <string name="et_message_hint">input \1 to represent ascii value 1 char</string>
+    <string name="send">send</string>
+    <string name="tv_out_hint">This is the output of the band</string>
+    <string name="clear">clear</string>
+    <string name="cur_device_hint">Current device: Not connected</string>
+</resources>
