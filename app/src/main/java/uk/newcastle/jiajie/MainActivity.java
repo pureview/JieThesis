@@ -1,5 +1,9 @@
 package uk.newcastle.jiajie;
 
+import android.Manifest;
+import android.bluetooth.BluetoothDevice;
+import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,11 +24,22 @@ import com.polidea.rxandroidble2.RxBleDevice;
 import com.polidea.rxandroidble2.RxBleScanResult;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import io.reactivex.ObservableSource;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import uk.newcastle.jiajie.ble.BluetoothClient;
+import uk.newcastle.jiajie.ble.BluetoothClientBLEV2Adapter;
+import uk.newcastle.jiajie.ble.bean.BLEDevice;
+import uk.newcastle.jiajie.ble.callback.BaseResultCallback;
+import uk.newcastle.jiajie.ble.originV2.BluetoothLeInitialization;
 import uk.newcastle.jiajie.util.StringUtil;
 
 import static uk.newcastle.jiajie.Constants.*;
@@ -33,10 +48,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvLog, tvItemDevice, tvOut, tvCurDevice;
     private EditText etIn;
     private Button btnScan, btnSend, btnClear;
+    List<BLEDevice> devices = new ArrayList<>();
     private ListView deviceList;
-    private RxBleClient btClient;
-    private RxBleDevice curDevice = null;
-    private RxBleConnection connection = null;
+    private BluetoothClient btClient;
+    private BLEDevice curDevice = null;
 
     private static final String TAG = "MainActivity";
 
@@ -44,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        requestPermission();
         tvLog = findViewById(R.id.tv_log);
         btnScan = findViewById(R.id.btn_scan);
         btnSend = findViewById(R.id.btn_send);
@@ -53,61 +69,70 @@ public class MainActivity extends AppCompatActivity {
         etIn = findViewById(R.id.et_in);
         btnClear = findViewById(R.id.btn_clear);
         // Init scan button
-        btnScan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Begin to scan ble devices!", Toast.LENGTH_LONG).show();
-                // Initialize bluetooth manager
-                initBle();
-            }
+        btnScan.setOnClickListener(v -> {
+            Toast.makeText(MainActivity.this, "Begin to scan ble devices!", Toast.LENGTH_LONG).show();
+            // Initialize bluetooth manager
+            initBle();
         });
         // Init message send button
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (curDevice == null) {
-                    Toast.makeText(MainActivity.this, "There is no device connected.",
-                            Toast.LENGTH_LONG).show();
-                } else {
-                    // Send message
-                    String toBeSent = StringUtil.escap(etIn.getText().toString());
-                    curDevice.establishConnection(false)
-                            .flatMapSingle(o -> {
-                                return o.writeCharacteristic(writeUUID, toBeSent.getBytes());
-                            })
-                            .subscribe(o -> {
-                                Toast.makeText(MainActivity.this, "Send success",
-                                        Toast.LENGTH_LONG).show();
-                                curDevice.establishConnection(false)
-                                        .flatMapSingle(r -> r.readCharacteristic(readUUID))
-                                        .subscribe(r -> {
-                                            tvOut.setText(r.toString());
-                                        }).dispose();
-                            }).dispose();
-                }
+        btnSend.setOnClickListener(v -> {
+            if (curDevice == null) {
+                Toast.makeText(MainActivity.this, "There is no device connected.",
+                        Toast.LENGTH_LONG).show();
+            } else {
+                // Send message
+                String toBeSent = StringUtil.escap(etIn.getText().toString());
+                writeToBle(toBeSent);
             }
         });
         // Init clear button
-        btnClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                tvLog.setText("");
-            }
-        });
+        btnClear.setOnClickListener(v -> tvLog.setText(""));
+    }
+
+    /**
+     * Request necessary permissions.
+     */
+    private void requestPermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 519);
+        }
     }
 
     /**
      * Initialize bluetooth manager
      */
     private void initBle() {
-        final List<RxBleDevice> devices = new ArrayList<>();
-        btClient = RxBleClient.create(MainActivity.this);
-        Disposable scanSubscription = btClient.scanBleDevices()
-                .subscribe(new Consumer<RxBleScanResult>() {
+        btClient = new BluetoothClientBLEV2Adapter(BluetoothLeInitialization.getInstance(this));
+        btClient.openBluetooth();
+        devices.clear();
+        for (int i = 0; i < 30; i++) {
+            logToFront("test");
+        }
+        // 第一参数指定扫描时间，第二个参数指定是否中断当前正在进行的扫描操作
+        btClient.search(3000, false)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<BLEDevice>() {
                     @Override
-                    public void accept(RxBleScanResult o) throws Exception {
-                        devices.add(o.getBleDevice());
-                        Log.d(TAG, "onComplete: search");
+                    public void onSubscribe(Disposable d) {
+                        logToFront("start scanning\n");
+                    }
+
+                    @Override
+                    public void onNext(BLEDevice value) {
+                        devices.add(value);
+                        logToFront(value.getDeviceName() + "\n");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("main", e.toString());
+                        logToFront("Scan error:" + e.getMessage() + '\n');
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        logToFront("Scan complete\n");
+                        Log.d("main", "device size " + devices.size());
                         deviceList.setAdapter(new BaseAdapter() {
                             @Override
                             public int getCount() {
@@ -135,7 +160,12 @@ public class MainActivity extends AppCompatActivity {
                                     view = convertView;
                                 }
                                 tvItemDevice = view.findViewById(R.id.tv_device);
-                                tvItemDevice.setText(devices.get(position).getName());
+                                String deviceName = devices.get(position).getDeviceName();
+                                if (deviceName == null) {
+                                    deviceName = "Device is empty";
+                                }
+                                tvItemDevice.setText(deviceName);
+                                tvItemDevice.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
                                 return view;
                             }
                         });
@@ -146,23 +176,51 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this,
                                     "Ready to connect " + curDevice,
                                     Toast.LENGTH_LONG).show();
-                            tvLog.setText(tvLog.getText() + "\nReady to connect " + curDevice.getName());
-                            tvCurDevice.setText(curDevice.getName());
-                            curDevice.establishConnection(false)
-                                    .flatMap(rxBleConnection ->
-                                            rxBleConnection.setupNotification(readUUID))
-                                    .doOnNext(notifyObservable -> {
-                                    })
-                                    .flatMap(o1 -> o1)
-                                    .subscribe(o1 -> {
-                                        tvOut.setText(tvOut.getText() + "\n" + o1.toString());
-                                    }).dispose();
-
+                            logToFront("Ready to connect " + curDevice.getDeviceName() + "\n");
+                            tvCurDevice.setText(curDevice.getDeviceName());
+                            connect();
                         });
-                        tvLog.setText(tvLog.getText() + "\n\n" + "complete");
                     }
                 });
-        scanSubscription.dispose();
 
+    }
+
+    /**
+     * Connect with ble device
+     */
+    private void connect() {
+        btClient.connect(curDevice.getMac())
+                .flatMap((Function<String, ObservableSource<String>>) s -> btClient.registerNotify(curDevice.getMac(), serviceUUID,
+                        readUUID, new BaseResultCallback<byte[]>() {
+                            @Override
+                            public void onSuccess(byte[] data) {
+                                logToFront("[read] " + new String(data) + "\n");
+                            }
+
+                            @Override
+                            public void onFail(String msg) {
+                                logToFront("[error]" + msg);
+                            }
+                        }));
+    }
+
+    private void logToFront(String msg) {
+        Date date = new Date(System.currentTimeMillis());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        tvLog.setText(dateFormat.format(date) + " " + msg + "\n" + tvLog.getText());
+    }
+
+    /**
+     * Write msg to current ble device.
+     *
+     * @param msg The message to be sent
+     */
+    private void writeToBle(String msg) {
+        btClient.connect(curDevice.getMac())
+                .flatMap((Function<String, ObservableSource<String>>) s -> {
+                    logToFront("[write]" + msg);
+                    return btClient.write(curDevice.getMac(), serviceUUID,
+                            writeUUID, msg.getBytes());
+                });
     }
 }
