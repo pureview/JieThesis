@@ -23,66 +23,39 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.inuker.bluetooth.library.BluetoothClient;
+import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
+import com.inuker.bluetooth.library.connect.response.BleConnectResponse;
+import com.inuker.bluetooth.library.connect.response.BleNotifyResponse;
+import com.inuker.bluetooth.library.connect.response.BleWriteResponse;
+import com.inuker.bluetooth.library.model.BleGattProfile;
+import com.inuker.bluetooth.library.search.SearchRequest;
+import com.inuker.bluetooth.library.search.SearchResult;
+import com.inuker.bluetooth.library.search.response.SearchResponse;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
-import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
-import uk.newcastle.jiajie.ble.BluetoothClient;
-import uk.newcastle.jiajie.ble.BluetoothClientBLEV2Adapter;
-import uk.newcastle.jiajie.ble.bean.BLEDevice;
-import uk.newcastle.jiajie.ble.callback.BaseResultCallback;
-import uk.newcastle.jiajie.ble.originV2.BluetoothLeInitialization;
-import uk.newcastle.jiajie.service.BluetoothService;
 import uk.newcastle.jiajie.util.StringUtil;
 
+import static com.inuker.bluetooth.library.Constants.REQUEST_SUCCESS;
+import static com.inuker.bluetooth.library.Constants.STATUS_CONNECTED;
+import static com.inuker.bluetooth.library.Constants.STATUS_DISCONNECTED;
 import static uk.newcastle.jiajie.Constants.*;
 
 public class MainActivity extends AppCompatActivity {
     private TextView tvLog, tvItemDevice, tvOut, tvCurDevice;
     private EditText etIn;
     private Button btnScan, btnSend, btnClear;
-    List<BluetoothDevice> devices = new ArrayList<>();
+    List<SearchResult> devices = new ArrayList<>();
     private ListView deviceList;
-    private BluetoothDevice curDevice = null;
-    private BluetoothAdapter bluetoothAdapter;
-    private Handler handler;
-    private boolean isScanning = false;
+    private SearchResult curDevice = null;
     private BaseAdapter deviceAdapter;
-    // Handles various events fired by the Service.
-    // ACTION_GATT_CONNECTED: connected to a GATT server.
-    // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
-    // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
-    // ACTION_DATA_AVAILABLE: received data from the device. This can be a
-    // result of read or notification operations.
-    private final BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            if (BluetoothService.ACTION_GATT_CONNECTED.equals(action)) {
-                connected = true;
-                updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
-            } else if (BluetoothService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                connected = false;
-                updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
-                clearUI();
-            } else if (BluetoothService.
-                    ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                // Show all the supported services and characteristics on the
-                // user interface.
-                displayGattServices(bluetoothLeService.getSupportedGattServices());
-            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
-            }
-        }
-    };
+    private BleGattProfile curGatt;
+    private BluetoothClient btClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +111,10 @@ public class MainActivity extends AppCompatActivity {
         //  Set item click listener
         deviceList.setOnItemClickListener((parent, view, position, id) -> {
             // Ready to click
+            if (curDevice != null) {
+                logToFront("Disconnect from device " + curDevice.getName());
+                btClient.disconnect(curDevice.getAddress());
+            }
             curDevice = devices.get(position);
             Toast.makeText(MainActivity.this,
                     "Ready to connect " + curDevice,
@@ -146,15 +123,10 @@ public class MainActivity extends AppCompatActivity {
             tvCurDevice.setText(curDevice.getName());
             connect();
         });
-        // Initializes Bluetooth adapter.
-        BluetoothManager bluetoothManager =
-                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        bluetoothAdapter = bluetoothManager.getAdapter();
-        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
-            Toast.makeText(this, "Please open bluetooth",
-                    Toast.LENGTH_LONG).show();
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        btClient = new BluetoothClient(this);
+        if (!btClient.isBluetoothOpened()) {
+            toast("Please open bluetooth");
+            btClient.openBluetooth();
         }
         // Init scan button
         btnScan.setOnClickListener(v -> {
@@ -200,8 +172,15 @@ public class MainActivity extends AppCompatActivity {
      */
     private void writeToBle(String msg) {
         logToFront("[write]" + msg);
-        btClient.write(curDevice.getMac(), serviceUUID,
-                writeUUID, msg.getBytes());
+        btClient.write(curDevice.getAddress(),
+                serviceUUID, writeUUID, msg.getBytes(),
+                code -> {
+                    if (code == REQUEST_SUCCESS) {
+                        logToFront("Write success");
+                    } else {
+                        logToFront("Write fail, code= " + code);
+                    }
+                });
     }
 
 
@@ -213,31 +192,84 @@ public class MainActivity extends AppCompatActivity {
      * Use android official interface
      */
     private void initBle() {
-        if (isScanning) {
-            toast("Is scanning! Please wait");
-            return;
-        }
-        // Scan bluetooth devices
-        long SCAN_PERIOD = 6000;
-        // init scan callback
-        BluetoothAdapter.LeScanCallback leScanCallback =
-                (device, rssi, scanRecord) -> runOnUiThread(() -> {
-                    devices.add(device);
-                    deviceAdapter.notifyDataSetChanged();
-                });
-        handler.postDelayed(() -> {
-            isScanning = false;
-            bluetoothAdapter.stopLeScan(leScanCallback);
-        }, SCAN_PERIOD);
+        devices.clear();
+        deviceAdapter.notifyDataSetChanged();
+        btClient.stopSearch();
+        SearchRequest request = new SearchRequest.Builder()
+                .searchBluetoothLeDevice(6000, 2)
+                .build();
+        btClient.search(request, new SearchResponse() {
+            @Override
+            public void onSearchStarted() {
+                logToFront("Start search for ble devices");
+            }
 
-        isScanning = true;
-        bluetoothAdapter.startLeScan(leScanCallback);
+            @Override
+            public void onDeviceFounded(SearchResult device) {
+                logToFront("Find device " + device.getName() +
+                        ", address " + device.getAddress());
+                devices.add(device);
+                deviceAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onSearchStopped() {
+                logToFront("Search bluetooth devices stopped");
+            }
+
+            @Override
+            public void onSearchCanceled() {
+                logToFront("Search cancelled");
+            }
+        });
     }
 
     /**
      * Connect to curDevice
      */
     private void connect() {
-        bluetoothGatt = device.connectGatt(this, false, gattCallback);
+        btClient.connect(curDevice.getAddress(), (i, bleGattProfile) -> {
+            if (i == REQUEST_SUCCESS) {
+                logToFront("Connect success " + bleGattProfile.toString());
+                tvCurDevice.setText(curDevice.getName() + ", mac=" + curDevice.getAddress());
+                curGatt = bleGattProfile;
+            } else {
+                curDevice = null;
+                curGatt = null;
+                logToFront("Connect fail, code = " + i);
+            }
+        });
+        BleConnectStatusListener mBleConnectStatusListener = new BleConnectStatusListener() {
+
+            @Override
+            public void onConnectStatusChanged(String mac, int status) {
+                if (status == STATUS_CONNECTED) {
+                    logToFront("Device connected " + mac);
+                } else if (status == STATUS_DISCONNECTED) {
+                    logToFront("Device disconnected " + mac);
+                }
+            }
+        };
+        btClient.registerConnectStatusListener(curDevice.getAddress(),
+                mBleConnectStatusListener);
+        logToFront("Register device notificaion");
+        btClient.notify(curDevice.getAddress(),
+                serviceUUID,
+                readUUID,
+                new BleNotifyResponse() {
+                    @Override
+                    public void onNotify(UUID service, UUID character, byte[] bytes) {
+                        logToFront("[read]" + new String(bytes));
+                    }
+
+                    @Override
+                    public void onResponse(int i) {
+                        if (i == REQUEST_SUCCESS) {
+                            logToFront("Register notify success");
+                        } else {
+                            logToFront("Register notify fail. Code=" + i);
+                        }
+                    }
+                });
     }
 }
