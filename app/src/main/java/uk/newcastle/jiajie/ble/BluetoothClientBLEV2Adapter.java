@@ -97,61 +97,58 @@ public class BluetoothClientBLEV2Adapter implements BluetoothClient {
 
     @Override
     public Observable<String> connect(final String mac) {
-        return Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(final ObservableEmitter<String> e) throws Exception {
-                BluetoothLeConnector connector = mClient.getBluetoothLeConnector(mac);
+        return Observable.create(e -> {
+            BluetoothLeConnector connector = mClient.getBluetoothLeConnector(mac);
 
-                connector.setOnDataAvailableListener(new BluetoothLeConnector.OnDataAvailableListener() {
-                    @Override
-                    public void onCharacteristicRead(byte[] values, int status) {
+            connector.setOnDataAvailableListener(new BluetoothLeConnector.OnDataAvailableListener() {
+                @Override
+                public void onCharacteristicRead(byte[] values, int status) {
 
-                    }
+                }
 
-                    @Override
-                    public void onCharacteristicChange(UUID characteristic, byte[] values) {
+                @Override
+                public void onCharacteristicChange(UUID characteristic, byte[] values) {
 
-                    }
+                }
 
-                    @Override
-                    public void onCharacteristicWrite(UUID characteristic, int status) {
+                @Override
+                public void onCharacteristicWrite(UUID characteristic, int status) {
 
-                    }
+                }
 
-                    @Override
-                    public void onDescriptorWrite(UUID descriptor, int status) {
+                @Override
+                public void onDescriptorWrite(UUID descriptor, int status) {
 
-                    }
+                }
 
-                    @Override
-                    public void onError(String msg) {
+                @Override
+                public void onError(String msg) {
 
-                    }
-                });
+                }
+            });
 
-                connector.connect(new BluetoothLeConnector.OnConnectListener() {
-                    @Override
-                    public void onConnect() {
+            connector.connect(new BluetoothLeConnector.OnConnectListener() {
+                @Override
+                public void onConnect() {
 
-                    }
+                }
 
-                    @Override
-                    public void onDisconnect() {
+                @Override
+                public void onDisconnect() {
 
-                    }
+                }
 
-                    @Override
-                    public void onServiceDiscover() {
-                        e.onNext(mac);
-                        e.onComplete();
-                    }
+                @Override
+                public void onServiceDiscover() {
+                    e.onNext(mac);
+                    e.onComplete();
+                }
 
-                    @Override
-                    public void onError(String msg) {
-                        e.onError(new Exception(msg));
-                    }
-                });
-            }
+                @Override
+                public void onError(String msg) {
+                    e.onError(new Exception(msg));
+                }
+            });
         });
     }
 

@@ -10,8 +10,8 @@ public class StringUtil {
         StringBuilder sb = new StringBuilder();
         StringBuilder t;
         int i = 0;
-        while (i < raw.length() - 1) {
-            if (raw.charAt(i) == '\\' && isNum(raw.charAt(i + 1))) {
+        while (i < raw.length()) {
+            if (raw.charAt(i) == '\\' && i<raw.length()-1 &&isNum(raw.charAt(i + 1))) {
                 i += 1;
                 t = new StringBuilder();
                 while (i < raw.length() && isNum(raw.charAt(i))) {
