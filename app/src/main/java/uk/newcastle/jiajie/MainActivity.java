@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import uk.newcastle.jiajie.util.DecodeUtil;
 import uk.newcastle.jiajie.util.StringUtil;
 
 import static com.inuker.bluetooth.library.Constants.REQUEST_SUCCESS;
@@ -252,20 +253,25 @@ public class MainActivity extends AppCompatActivity {
         };
         btClient.registerConnectStatusListener(curDevice.getAddress(),
                 mBleConnectStatusListener);
-        logToFront("Register device notificaion");
+        logToFront("Register device notification");
         btClient.notify(curDevice.getAddress(),
                 serviceUUID,
                 readUUID,
                 new BleNotifyResponse() {
                     @Override
                     public void onNotify(UUID service, UUID character, byte[] bytes) {
-                        logToFront("[read]" + new String(bytes));
+                        logToFront("[NotifyRead]" + new String(bytes) +
+                                "; BytesSize=" + bytes.length);
+                        logToFront("[Decode]" + DecodeUtil.decodeBytes(bytes));
                     }
 
                     @Override
                     public void onResponse(int i) {
                         if (i == REQUEST_SUCCESS) {
                             logToFront("Register notify success");
+                            // Ready to stream data
+                            logToFront("Ready to set to stream mode");
+                            writeToBle("I");
                         } else {
                             logToFront("Register notify fail. Code=" + i);
                         }
