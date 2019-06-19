@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
                             streamBuffer=new StringBuilder();
                             logToFront("[NotifyRead]" + buff +
                                     "; BuffSize=" + buff.length());
-                            logToFront("[Decode]" + DecodeUtil.decodeBytes(bytes));
+                            logToFront("[Decode]" + DecodeUtil.decodeBytes(buff));
                         }
                     }
 
