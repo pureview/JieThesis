@@ -1,16 +1,9 @@
 package uk.newcastle.jiajie;
 
 import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,9 +18,7 @@ import android.widget.Toast;
 
 import com.inuker.bluetooth.library.BluetoothClient;
 import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
-import com.inuker.bluetooth.library.connect.response.BleConnectResponse;
 import com.inuker.bluetooth.library.connect.response.BleNotifyResponse;
-import com.inuker.bluetooth.library.connect.response.BleWriteResponse;
 import com.inuker.bluetooth.library.model.BleGattProfile;
 import com.inuker.bluetooth.library.search.SearchRequest;
 import com.inuker.bluetooth.library.search.SearchResult;
@@ -42,9 +33,7 @@ import java.util.UUID;
 import uk.newcastle.jiajie.util.DecodeUtil;
 import uk.newcastle.jiajie.util.StringUtil;
 
-import static com.inuker.bluetooth.library.Constants.REQUEST_SUCCESS;
-import static com.inuker.bluetooth.library.Constants.STATUS_CONNECTED;
-import static com.inuker.bluetooth.library.Constants.STATUS_DISCONNECTED;
+import static com.inuker.bluetooth.library.Constants.*;
 import static uk.newcastle.jiajie.Constants.*;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,8 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private ListView deviceList;
     private SearchResult curDevice = null;
     private BaseAdapter deviceAdapter;
-    private BleGattProfile curGatt;
     private BluetoothClient btClient;
+    private StringBuilder streamBuffer = new StringBuilder();
+    private BleGattProfile curGatt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,6 +156,10 @@ public class MainActivity extends AppCompatActivity {
         Log.d("main", dateFormat.format(date) + " " + msg + "\n" + tvLog.getText());
     }
 
+    private void logToConsole(String msg) {
+        Log.d("main", msg);
+    }
+
     /**
      * Write msg to current ble device.
      *
@@ -260,9 +254,19 @@ public class MainActivity extends AppCompatActivity {
                 new BleNotifyResponse() {
                     @Override
                     public void onNotify(UUID service, UUID character, byte[] bytes) {
-                        logToFront("[NotifyRead]" + new String(bytes) +
-                                "; BytesSize=" + bytes.length);
-                        logToFront("[Decode]" + DecodeUtil.decodeBytes(bytes));
+                        if (bytes.length < 2) {
+                            return;
+                        }
+                        int size = bytes.length;
+                        streamBuffer.append(new String(bytes));
+                        if (bytes[size - 2] == '\r' && bytes[size - 1] == '\n') {
+                            logToConsole("Finish reading buffer");
+                            String buff = streamBuffer.toString();
+                            streamBuffer=new StringBuilder();
+                            logToFront("[NotifyRead]" + buff +
+                                    "; BuffSize=" + buff.length());
+                            logToFront("[Decode]" + DecodeUtil.decodeBytes(bytes));
+                        }
                     }
 
                     @Override
