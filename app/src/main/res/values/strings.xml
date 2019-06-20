@@ -12,4 +12,7 @@
     <string name="clear">clear</string>
     <string name="cur_device_hint">Current device: Not connected</string>
     <string name="copyright">©Designed by Jie in NewCastle</string>
+    <string name="notification_title">DataServicce</string>
+    <string name="notification_message" >Dummy</string>
+    <string name="ticker_text">ticker_text</string>
 </resources>

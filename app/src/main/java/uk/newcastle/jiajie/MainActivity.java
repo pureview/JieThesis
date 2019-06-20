@@ -1,9 +1,15 @@
 package uk.newcastle.jiajie;
 
 import android.Manifest;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import uk.newcastle.jiajie.service.DataService;
 import uk.newcastle.jiajie.util.DecodeUtil;
 import uk.newcastle.jiajie.util.StringUtil;
 
@@ -46,13 +53,14 @@ public class MainActivity extends AppCompatActivity {
     private BaseAdapter deviceAdapter;
     private BluetoothClient btClient;
     private StringBuilder streamBuffer = new StringBuilder();
-    private BleGattProfile curGatt;
+    private ServiceConnection dataConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         requestPermission();
+        startDataServiec();
         tvLog = findViewById(R.id.tv_log);
         btnScan = findViewById(R.id.btn_scan);
         btnSend = findViewById(R.id.btn_send);
@@ -227,10 +235,8 @@ public class MainActivity extends AppCompatActivity {
             if (i == REQUEST_SUCCESS) {
                 logToFront("Connect success " + bleGattProfile.toString());
                 tvCurDevice.setText(curDevice.getName() + ", mac=" + curDevice.getAddress());
-                curGatt = bleGattProfile;
             } else {
                 curDevice = null;
-                curGatt = null;
                 logToFront("Connect fail, code = " + i);
             }
         });
@@ -262,10 +268,10 @@ public class MainActivity extends AppCompatActivity {
                         if (bytes[size - 2] == '\r' && bytes[size - 1] == '\n') {
                             logToConsole("Finish reading buffer");
                             String buff = streamBuffer.toString();
-                            streamBuffer=new StringBuilder();
-                            logToFront("[NotifyRead]" + buff +
-                                    "; BuffSize=" + buff.length());
-                            logToFront("[Decode]" + DecodeUtil.decodeBytes(buff));
+                            sendToService(buff);
+                            streamBuffer = new StringBuilder();
+                            //logToConsole("[NotifyRead]" + buff +"; BuffSize=" + buff.length());
+                            //logToFront("[Decode]" + DecodeUtil.decodeBytes(buff));
                         }
                     }
 
@@ -281,5 +287,20 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    /**
+     * Start data processing service
+     */
+    private void startDataServiec() {
+        Intent intent = new Intent(this, DataService.class);
+        startService(intent);
+    }
+
+    /**
+     * Send message to data process service
+     */
+    private void sendToService(String msg){
+        Intent intent=new Intent();
     }
 }
