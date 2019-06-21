@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Paint;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -300,7 +301,10 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Send message to data process service
      */
-    private void sendToService(String msg){
-        Intent intent=new Intent();
+    private void sendToService(String msg) {
+        Intent intent = new Intent(this, DataService.class);
+        intent.setAction(ACTION_STREAM);
+        intent.putExtra("data", msg);
+        startService(intent);
     }
 }
