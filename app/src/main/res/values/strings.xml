@@ -13,6 +13,18 @@
     <string name="cur_device_hint">Current device: Not connected</string>
     <string name="copyright">©Designed by Jie in NewCastle</string>
     <string name="notification_title">DataServicce</string>
-    <string name="notification_message" >Dummy</string>
+    <string name="notification_message">Dummy</string>
     <string name="ticker_text">ticker_text</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_label">Label</string>
+    <string name="title_predict">Predict</string>
+    <string name="label_hint">Input your label here</string>
+    <string name="button_begin">Begin</string>
+    <string name="stop">Stop</string>
+    <string name="revert">revert</string>
+    <string name="label_data">label_data</string>
+    <string name="train">Train</string>
 </resources>
