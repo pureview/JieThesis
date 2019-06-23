@@ -3,7 +3,6 @@ package uk.newcastle.jiajie;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -31,8 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
 
 import uk.newcastle.jiajie.service.DataService;
 import uk.newcastle.jiajie.util.StringUtil;
@@ -55,10 +52,11 @@ public class MainActivity extends AppCompatActivity {
     private List<String> devices = new ArrayList<>();
     private BottomNavigationView navigationView;
     private ScrollView containerHome, containerLabel, containerPredict;
-    private LineChart labelChart, predictLineChart;
+    private LineChart labelChart, predictChart;
     private Button labelStart, labelStop, labelRevert, labelData;
-    private TextView tvLabelLog;
+    private TextView tvLabelLog, tvPredictTitle, tvLabelTitle;
     private EditText etLabel;
+    private Button btnTrain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,12 +72,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initPredictWidgets() {
-        predictLineChart = findViewById(R.id.chart_predict);
+        predictChart = findViewById(R.id.chart_predict);
+        tvPredictTitle=findViewById(R.id.tv_predict_title);
+        btnTrain =findViewById(R.id.btn_train);
+        btnTrain.setOnClickListener(v -> {
+            toast("Begin training. Please switch to home tab for logs");
+            sendCommand(TRAIN, "");
+        });
     }
 
     private void initLabelWidgets() {
         labelChart = findViewById(R.id.chart_label);
         labelStart = findViewById(R.id.btn_label_begin);
+        tvLabelTitle=findViewById(R.id.tv_label_title);
         etLabel = findViewById(R.id.et_label);
         labelStart.setOnClickListener(v -> {
             if (etLabel.getText().toString().length() == 0) {
@@ -257,7 +262,12 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case LABEL_DRAW:
-                        labelDraw(intent.getStringExtra(LABEL_DRAW));
+                        draw(intent.getStringExtra(LABEL_DRAW), labelChart);
+                        tvLabelTitle.setText(intent.getStringExtra(TITLE));
+                        break;
+                    case PREDICT_DRAW:
+                        draw(intent.getStringExtra(LABEL_DRAW), predictChart);
+                        tvPredictTitle.setText(intent.getStringExtra(TITLE));
                         break;
                     default:
                         logToFront("[receive] Action not recognized " + intent.getAction());
@@ -269,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
         this.registerReceiver(broadcastReceiver, filter);
     }
 
-    private void labelDraw(String stringExtra) {
+    private void draw(String stringExtra, LineChart chart) {
         List<Entry> entryX = new ArrayList<>();
         List<Entry> entryY = new ArrayList<>();
         List<Entry> entryZ = new ArrayList<>();
@@ -289,8 +299,8 @@ public class MainActivity extends AppCompatActivity {
         lineData.addDataSet(dataSetX);
         lineData.addDataSet(dataSetY);
         lineData.addDataSet(dataSetZ);
-        labelChart.setData(lineData);
-        labelChart.invalidate();
+        chart.setData(lineData);
+        chart.invalidate();
     }
 
     /**

@@ -18,9 +18,12 @@ public class Constants {
     public static final String DEVICE_FOUND = "device_found";
     public static final String CONNECT_DEVICE = "connect_device";
     public static final String SCAN = "scan";
+    public static final String TITLE = "title";
     public static final String LABEL_STOP = "label_stop";
     public static final String REVERT = "revert";
     public static final String LABEL_DRAW = "label_draw";
+    public static final String PREDICT_DRAW = "predict_draw";
     public static final int WINDOW_SIZE =50;
     public static final int PADDING_SIZE =25;
+    public static final String TRAIN = "train";
 }

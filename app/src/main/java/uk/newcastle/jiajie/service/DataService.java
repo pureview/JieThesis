@@ -36,6 +36,7 @@ import uk.newcastle.jiajie.Constants;
 import uk.newcastle.jiajie.MainActivity;
 import uk.newcastle.jiajie.R;
 import uk.newcastle.jiajie.bean.SensorBean;
+import uk.newcastle.jiajie.model.RFModel;
 import uk.newcastle.jiajie.type.ServiceStatusType;
 import uk.newcastle.jiajie.util.DecodeUtil;
 
@@ -55,11 +56,14 @@ public class DataService extends Service {
     private SearchResult curDevice = null;
     private BluetoothClient btClient;
     private StringBuilder streamBuffer = new StringBuilder();
-    private List<SensorBean> cache = new ArrayList<>();
+    private List<SensorBean> cache = new LinkedList<>();
     private String curFileName;
+    private RFModel rfModel;
+
     private static final int flushThresh = 500;
     private static final int trimHead = 100;
     private static final int trimTail = 100;
+    private static final int predictDrawStride = 25;
 
     @Override
     public void onCreate() {
@@ -124,9 +128,22 @@ public class DataService extends Service {
             case Constants.ACTION_PREDICT:
                 logToConsole("Change to predict mode");
                 break;
+            case TRAIN:
+                logToConsole("Begin train");
+                train();
         }
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    /**
+     * Train the model
+     */
+    private void train() {
+        if (rfModel == null) {
+            rfModel = new RFModel(this);
+            logToFront("Training is finished");
+        }
     }
 
     /**
@@ -194,24 +211,46 @@ public class DataService extends Service {
             bw.close();
             out.close();
             // Send data to front end and draw chart
-            drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()));
+            drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
+                    LABEL_DRAW, "Current label: "+curLabel);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void drawChart(List<SensorBean> data) {
+    private void drawChart(List<SensorBean> data,
+                           String type,
+                           String title) {
         StringBuilder sb = new StringBuilder();
         for (SensorBean sensorBean : data) {
             sb.append(sensorBean).append('\n');
         }
-        sendCommand(LABEL_DRAW, sb.toString());
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(type);
+        intent.putExtra(MAIN_ACTION_DATA, sb.toString());
+        intent.putExtra(TITLE, title);
+        sendBroadcast(intent);
     }
 
     /**
      * Process predict data
      */
     private void processPredictData(String data) {
+        if (curLabel == null || curLabel.equals("")) {
+            return;
+        }
+        cache.addAll(DecodeUtil.decodeBytes(data, curLabel));
+        if (cache.size() > WINDOW_SIZE) {
+            if (rfModel == null) {
+                logToFront("Please train the model first");
+                return;
+            }
+            String label = rfModel.predict(cache);
+            cache = cache.subList(predictDrawStride, cache.size());
+            drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
+                    LABEL_DRAW, label);
+            logToFront("Predict result: " + label);
+        }
     }
 
     /**
@@ -222,7 +261,7 @@ public class DataService extends Service {
             return;
         }
         cache.addAll(DecodeUtil.decodeBytes(data, curLabel));
-        if (cache.size() > flushThresh) {
+        if (cache.size() >= flushThresh) {
             flushCache();
         }
     }
