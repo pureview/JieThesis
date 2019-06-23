@@ -34,6 +34,8 @@ import java.util.List;
 import uk.newcastle.jiajie.service.DataService;
 import uk.newcastle.jiajie.util.StringUtil;
 
+import com.ashokvarma.bottomnavigation.BottomNavigationBar;
+import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private ServiceConnection dataConnection;
     private BroadcastReceiver broadcastReceiver;
     private List<String> devices = new ArrayList<>();
-    private BottomNavigationView navigationView;
+    private BottomNavigationBar navigationView;
     private ScrollView containerHome, containerLabel, containerPredict;
     private LineChart labelChart, predictChart;
     private Button labelStart, labelStop, labelRevert, labelData;
@@ -73,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void initPredictWidgets() {
         predictChart = findViewById(R.id.chart_predict);
-        tvPredictTitle=findViewById(R.id.tv_predict_title);
-        btnTrain =findViewById(R.id.btn_train);
+        tvPredictTitle = findViewById(R.id.tv_predict_title);
+        btnTrain = findViewById(R.id.btn_train);
         btnTrain.setOnClickListener(v -> {
             toast("Begin training. Please switch to home tab for logs");
             sendCommand(TRAIN, "");
@@ -84,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private void initLabelWidgets() {
         labelChart = findViewById(R.id.chart_label);
         labelStart = findViewById(R.id.btn_label_begin);
-        tvLabelTitle=findViewById(R.id.tv_label_title);
+        tvLabelTitle = findViewById(R.id.tv_label_title);
         etLabel = findViewById(R.id.et_label);
         labelStart.setOnClickListener(v -> {
             if (etLabel.getText().toString().length() == 0) {
@@ -128,26 +130,42 @@ public class MainActivity extends AppCompatActivity {
         containerLabel = findViewById(R.id.label_container);
         containerPredict = findViewById(R.id.predict_container);
         navigationView = findViewById(R.id.nav_view);
-        navigationView.setOnNavigationItemSelectedListener(menuItem -> {
-            switch (menuItem.getItemId()) {
-                case R.id.navigation_home:
-                    containerHome.setVisibility(View.VISIBLE);
-                    containerLabel.setVisibility(View.GONE);
-                    containerPredict.setVisibility(View.GONE);
-                    break;
-                case R.id.navigation_label:
-                    containerHome.setVisibility(View.GONE);
-                    containerLabel.setVisibility(View.VISIBLE);
-                    containerPredict.setVisibility(View.GONE);
-                    break;
-                case R.id.navigation_predict:
-                    containerHome.setVisibility(View.GONE);
-                    containerLabel.setVisibility(View.GONE);
-                    containerPredict.setVisibility(View.VISIBLE);
-                    break;
+        navigationView.addItem(new BottomNavigationItem(R.drawable.ic_home_black_24dp, "Home"));
+        navigationView.addItem(new BottomNavigationItem(R.drawable.ic_label, "Label"));
+        navigationView.addItem(new BottomNavigationItem(R.drawable.ic_predict, "Predict"));
+        navigationView.initialise();
+        navigationView.setTabSelectedListener(new BottomNavigationBar.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(int i) {
+switch (i) {
+                    case 0:
+                        containerHome.setVisibility(View.VISIBLE);
+                        containerLabel.setVisibility(View.GONE);
+                        containerPredict.setVisibility(View.GONE);
+                        break;
+                    case 1:
+                        containerHome.setVisibility(View.GONE);
+                        containerLabel.setVisibility(View.VISIBLE);
+                        containerPredict.setVisibility(View.GONE);
+                        break;
+                    case 2:
+                        containerHome.setVisibility(View.GONE);
+                        containerLabel.setVisibility(View.GONE);
+                        containerPredict.setVisibility(View.VISIBLE);
+                        break;
+                }
             }
-            return false;
+
+            @Override
+            public void onTabUnselected(int i) {
+
+            }
+
+            @Override
+            public void onTabReselected(int i) {
+            }
         });
+        navigationView.selectTab(0);
     }
 
     /**
@@ -240,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                logToConsole("Receive cmd:" + intent.getAction() + "|" + intent.getStringExtra(MAIN_ACTION_DATA));
                 switch (intent.getAction()) {
                     case MAIN_ACTION_LOG:
                         logToFront(intent.getStringExtra(MAIN_ACTION_DATA));
@@ -274,8 +293,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
+        IntentFilter filter = new IntentFilter(MAIN_ACTION_CMD);
         this.registerReceiver(broadcastReceiver, filter);
     }
 
@@ -320,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void logToConsole(String msg) {
-        Log.d("main", msg);
+        Log.e("main", msg);
     }
 
     private void toast(String msg) {

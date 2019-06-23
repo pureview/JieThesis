@@ -69,6 +69,7 @@ public class DataService extends Service {
     public void onCreate() {
         Toast.makeText(this, "Data service has been created",
                 Toast.LENGTH_LONG).show();
+        /*
         Notification.Builder builder = new Notification.Builder(this.getApplicationContext());
         Intent nfIntent = new Intent(this, MainActivity.class);
         builder.setContentIntent(PendingIntent.
@@ -82,18 +83,21 @@ public class DataService extends Service {
         Notification notification = builder.build();
         notification.defaults = Notification.DEFAULT_SOUND;
         startForeground(519, notification);
+        */
         btClient = new BluetoothClient(this);
         if (!btClient.isBluetoothOpened()) {
             toast("Please open bluetooth");
             btClient.openBluetooth();
         }
-        initBle();
         super.onCreate();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        switch (Objects.requireNonNull(intent.getAction())) {
+        if (intent.getAction() == null) {
+            return super.onStartCommand(intent, flags, startId);
+        }
+        switch (intent.getAction()) {
             case CONNECT_DEVICE:
                 int pos = Integer.valueOf(intent.getStringExtra(MAIN_ACTION_DATA));
                 connect(pos);
@@ -212,7 +216,7 @@ public class DataService extends Service {
             out.close();
             // Send data to front end and draw chart
             drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
-                    LABEL_DRAW, "Current label: "+curLabel);
+                    LABEL_DRAW, "Current label: " + curLabel);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -296,9 +300,10 @@ public class DataService extends Service {
     }
 
     private void sendCommand(String cmd, String data) {
-        Intent intent = new Intent(this, MainActivity.class);
+        logToConsole("sendCommand:" + cmd + "|" + data);
+        Intent intent = new Intent();
         intent.setAction(MAIN_ACTION_CMD);
-        intent.putExtra(cmd, data);
+        intent.putExtra(MAIN_ACTION_CMD, cmd);
         intent.putExtra(MAIN_ACTION_DATA, data);
         sendBroadcast(intent);
     }
@@ -307,6 +312,7 @@ public class DataService extends Service {
      * Use android official interface
      */
     private void initBle() {
+        toast("Begin scanning bluetooth devices");
         devices.clear();
         btClient.stopSearch();
         sendCommand(CLEAR, "");
