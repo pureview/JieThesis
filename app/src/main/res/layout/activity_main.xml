@@ -8,10 +8,10 @@
     tools:context=".MainActivity">
 
     <ScrollView
-        android:visibility="gone"
         android:id="@+id/home_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -104,10 +104,10 @@
     </ScrollView>
 
     <ScrollView
-        android:visibility="gone"
         android:id="@+id/label_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -148,13 +148,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/revert" />
+
+                <Button
+                    android:id="@+id/btn_label_check_data"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_data" />
             </LinearLayout>
 
-            <Button
-                android:id="@+id/btn_label_check_data"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_data" />
 
             <ScrollView
                 android:layout_width="match_parent"
@@ -165,12 +166,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </ScrollView>
+
             <TextView
                 android:id="@+id/tv_label_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                />
+                android:textStyle="bold" />
+
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_label"
                 android:layout_width="wrap_content"
@@ -187,18 +189,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <Button
                 android:id="@+id/btn_train"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/train"
-                />
+                android:text="@string/train" />
+
             <TextView
                 android:id="@+id/tv_predict_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                />
+                android:textStyle="bold" />
+
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_predict"
                 android:layout_width="match_parent"
@@ -207,16 +210,16 @@
     </ScrollView>
 
     <com.ashokvarma.bottomnavigation.BottomNavigationBar
-            android:id="@+id/nav_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="0dp"
-            android:layout_marginStart="0dp"
-            android:background="?android:attr/windowBackground"
-            app:bnbMode="mode_fixed"
-            app:bnbInactiveColor="@color/colorPrimary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"/>
+        android:id="@+id/nav_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:background="?android:attr/windowBackground"
+        app:bnbInactiveColor="@color/colorPrimary"
+        app:bnbMode="mode_fixed"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

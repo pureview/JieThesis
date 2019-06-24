@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
         navigationView.setTabSelectedListener(new BottomNavigationBar.OnTabSelectedListener() {
             @Override
             public void onTabSelected(int i) {
-switch (i) {
+                switch (i) {
                     case 0:
                         containerHome.setVisibility(View.VISIBLE);
                         containerLabel.setVisibility(View.GONE);
@@ -245,6 +245,7 @@ switch (i) {
      * Send command to data service
      */
     private void sendCommand(String cmd, String data) {
+        logToFront("Sending command to service:" + cmd + "|" + data);
         Intent intent = new Intent(this, DataService.class);
         intent.setAction(cmd);
         intent.putExtra(MAIN_ACTION_DATA, data);

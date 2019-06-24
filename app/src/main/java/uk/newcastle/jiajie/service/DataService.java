@@ -262,10 +262,12 @@ public class DataService extends Service {
      */
     private void processLabelData(String data) {
         if (curLabel == null || curLabel.equals("")) {
+            logToConsole("Current label is null");
             return;
         }
         cache.addAll(DecodeUtil.decodeBytes(data, curLabel));
         if (cache.size() >= flushThresh) {
+            logToConsole("Ready to flush into disk "+cache.size());
             flushCache();
         }
     }
