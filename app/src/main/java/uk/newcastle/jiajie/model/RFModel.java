@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 
 import java.util.List;
+import org.slf4j.Logger;
 
 import smile.classification.RandomForest;
 import uk.newcastle.jiajie.bean.SensorBean;
