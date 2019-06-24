@@ -269,6 +269,7 @@ public class DataService extends Service {
         if (cache.size() >= flushThresh) {
             logToConsole("Ready to flush into disk "+cache.size());
             flushCache();
+            cache.clear();
         }
     }
 
