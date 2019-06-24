@@ -110,9 +110,9 @@ public class DataService extends Service {
                 writeToBle(cmd);
                 break;
             case Constants.ACTION_LABEL:
-                logToConsole("Change to label mode");
                 serviceStatus = ServiceStatusType.LABEL;
-                curLabel = intent.getStringExtra("label");
+                curLabel = intent.getStringExtra(MAIN_ACTION_DATA);
+                logToConsole("Change to label mode, "+curLabel);
                 initLabelFile();
                 break;
             case Constants.ACTION_STOP:
