@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
                         tvLabelTitle.setText(intent.getStringExtra(TITLE));
                         break;
                     case PREDICT_DRAW:
-                        draw(intent.getStringExtra(LABEL_DRAW), predictChart);
+                        draw(intent.getStringExtra(MAIN_ACTION_DATA), predictChart);
                         tvPredictTitle.setText(intent.getStringExtra(TITLE));
                         break;
                     default:
@@ -339,6 +339,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void draw(String stringExtra, LineChart chart) {
+        if(stringExtra==null){
+            logToConsole("Draw data is null");
+            return;
+        }
         logToConsole("Ready to draw | "+ stringExtra);
         List<Entry> entryX = new ArrayList<>();
         List<Entry> entryY = new ArrayList<>();

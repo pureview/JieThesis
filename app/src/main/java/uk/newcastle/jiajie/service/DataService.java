@@ -242,9 +242,9 @@ public class DataService extends Service {
         cache.addAll(DecodeUtil.decodeBytes(data, curLabel));
         if (cache.size() > WINDOW_SIZE) {
             String label = rfModel.predict(cache);
-            cache = cache.subList(predictDrawStride, cache.size());
             drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
                     PREDICT_DRAW, label);
+            cache = cache.subList(predictDrawStride, cache.size());
             logToFront("Predict result: " + label);
         }
     }
