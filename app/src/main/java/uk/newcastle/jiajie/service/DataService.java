@@ -1,10 +1,7 @@
 package uk.newcastle.jiajie.service;
 
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -16,12 +13,9 @@ import com.inuker.bluetooth.library.search.SearchRequest;
 import com.inuker.bluetooth.library.search.SearchResult;
 import com.inuker.bluetooth.library.search.response.SearchResponse;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,7 +23,6 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import uk.newcastle.jiajie.Constants;
@@ -112,7 +105,7 @@ public class DataService extends Service {
             case Constants.ACTION_LABEL:
                 serviceStatus = ServiceStatusType.LABEL;
                 curLabel = intent.getStringExtra(MAIN_ACTION_DATA);
-                logToConsole("Change to label mode, "+curLabel);
+                logToConsole("Change to label mode, " + curLabel);
                 initLabelFile();
                 break;
             case Constants.ACTION_STOP:
@@ -131,6 +124,7 @@ public class DataService extends Service {
                 break;
             case Constants.ACTION_PREDICT:
                 logToConsole("Change to predict mode");
+                serviceStatus = ServiceStatusType.PREDICT;
                 break;
             case TRAIN:
                 logToConsole("Begin train");
@@ -243,12 +237,12 @@ public class DataService extends Service {
         if (curLabel == null || curLabel.equals("")) {
             return;
         }
+        if (rfModel == null) {
+            logToFront("Please train the model first");
+            return;
+        }
         cache.addAll(DecodeUtil.decodeBytes(data, curLabel));
         if (cache.size() > WINDOW_SIZE) {
-            if (rfModel == null) {
-                logToFront("Please train the model first");
-                return;
-            }
             String label = rfModel.predict(cache);
             cache = cache.subList(predictDrawStride, cache.size());
             drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
@@ -267,7 +261,7 @@ public class DataService extends Service {
         }
         cache.addAll(DecodeUtil.decodeBytes(data, curLabel));
         if (cache.size() >= flushThresh) {
-            logToConsole("Ready to flush into disk "+cache.size());
+            logToConsole("Ready to flush into disk " + cache.size());
             flushCache();
             cache.clear();
         }
@@ -295,7 +289,8 @@ public class DataService extends Service {
         Log.e("DataService", msg);
     }
 
-    private void logToFront(String msg) {
+    public void logToFront(String msg) {
+        logToConsole(msg);
         Intent intent = new Intent(this, MainActivity.class);
         intent.setAction(MAIN_ACTION_LOG);
         intent.putExtra(MAIN_ACTION_DATA, msg);
@@ -393,7 +388,7 @@ public class DataService extends Service {
                             String buff = streamBuffer.toString();
                             switch (serviceStatus) {
                                 case FREE:
-                                    logToConsole("Receive data, but I will do nothing");
+                                    //logToConsole("Receive data, but I will do nothing");
                                     break;
                                 case LABEL:
                                     processLabelData(buff);

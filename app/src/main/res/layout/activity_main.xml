@@ -190,11 +190,27 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btn_train"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/train" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_train"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/train" />
+                <Button
+                    android:id="@+id/btn_predict_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_begin" />
+                <Button
+                    android:id="@+id/btn_predict_stop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stop" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_predict_title"

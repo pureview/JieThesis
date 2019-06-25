@@ -22,10 +22,11 @@ public class RFModel {
     private Dataset dataset;
 
     public RFModel(DataService service) {
-        Log.d("RFModel", "Load dataset");
+        service.logToFront("RFModel | Load dataset");
         dataset = new Dataset(service);
         double[][] x = dataset.getX();
         int[] y = dataset.getY();
+        service.logToFront("RFModel | Begin training");
         randomForest = new RandomForest(x, y, 12);
     }
 

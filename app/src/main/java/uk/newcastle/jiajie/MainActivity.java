@@ -30,6 +30,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import uk.newcastle.jiajie.service.DataService;
 import uk.newcastle.jiajie.util.StringUtil;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private Button labelStart, labelStop, labelRevert, labelData;
     private TextView tvLabelLog, tvPredictTitle, tvLabelTitle;
     private EditText etLabel;
-    private Button btnTrain;
+    private Button btnTrain, btnPredictBegin, btnPredictStop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +76,47 @@ public class MainActivity extends AppCompatActivity {
 
     private void initPredictWidgets() {
         predictChart = findViewById(R.id.chart_predict);
+        initPredictDummy();
         tvPredictTitle = findViewById(R.id.tv_predict_title);
         btnTrain = findViewById(R.id.btn_train);
         btnTrain.setOnClickListener(v -> {
             toast("Begin training. Please switch to home tab for logs");
             sendCommand(TRAIN, "");
         });
+        btnPredictBegin=findViewById(R.id.btn_predict_start);
+        btnPredictBegin.setOnClickListener(v->{
+            toast("Begin predict");
+            sendCommand(ACTION_PREDICT,"");
+        });
+        btnPredictStop=findViewById(R.id.btn_predict_stop);
+        btnPredictStop.setOnClickListener(v->{
+            toast("Stop predict");
+            sendCommand(ACTION_STOP,"");
+        });
+    }
+
+    private void initPredictDummy() {
+        List<Entry> entryX = new ArrayList<>();
+        List<Entry> entryY = new ArrayList<>();
+        List<Entry> entryZ = new ArrayList<>();
+        Random random=new Random();
+        for (int i=0;i<10;i++) {
+            entryX.add(new Entry(i, random.nextFloat()));
+            entryY.add(new Entry(i, random.nextFloat()));
+            entryZ.add(new Entry(i, random.nextFloat()));
+        }
+        LineDataSet dataSetX = new LineDataSet(entryX, "sensorX");
+        dataSetX.setColor(Color.BLUE);
+        LineDataSet dataSetY = new LineDataSet(entryY, "sensorY");
+        dataSetY.setColor(Color.GREEN);
+        LineDataSet dataSetZ = new LineDataSet(entryZ, "sensorZ");
+        dataSetZ.setColor(Color.RED);
+        LineData lineData = new LineData();
+        lineData.addDataSet(dataSetX);
+        lineData.addDataSet(dataSetY);
+        lineData.addDataSet(dataSetZ);
+        predictChart.setData(lineData);
+        predictChart.invalidate();
     }
 
     private void initLabelWidgets() {
@@ -299,6 +335,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void draw(String stringExtra, LineChart chart) {
+        logToConsole("Ready to draw | "+ stringExtra);
         List<Entry> entryX = new ArrayList<>();
         List<Entry> entryY = new ArrayList<>();
         List<Entry> entryZ = new ArrayList<>();

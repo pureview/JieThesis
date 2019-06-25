@@ -48,11 +48,11 @@ public class Dataset {
     private void loadDataset() {
         String[] currentFiles = service.fileList();
         initLabels(currentFiles);
-        for (int i=0;i<currentFiles.length;i++) {
-            String s=currentFiles[i];
+        for (int i = 0; i < currentFiles.length; i++) {
+            String s = currentFiles[i];
             String curLabelString = s.split("_")[0];
-            Log.d("Dataset", "Processing "+i+"th file out of "+curLabelString.length()+" files");
-            if (curLabelString == null || !labelMap.containsKey(curLabelString)) {
+            service.logToFront("Dataset | Processing " + i + "th file out of " + curLabelString.length() + " files");
+            if (!labelMap.containsKey(curLabelString)) {
                 continue;
             }
             int curLabel = labelMap.get(curLabelString);
@@ -60,12 +60,16 @@ public class Dataset {
                 FileInputStream in = service.openFileInput(s);
                 BufferedReader bi = new BufferedReader(new InputStreamReader(in));
                 String line;
+                int counter=0;
                 while ((line = bi.readLine()) != null) {
                     if (line.length() > 0) {
                         SensorBean sensorBean = new SensorBean(line);
                         transformForTrain(sensorBean, curLabel);
                     }
+                    counter+=1;
                 }
+                service.logToFront("Dataset | This file has " + counter + " lines. " +
+                "Begin generate dataset");
                 bi.close();
                 in.close();
             } catch (IOException e) {
@@ -80,12 +84,13 @@ public class Dataset {
      * Generate x y from cache
      */
     private void generateXY() {
-        int size= tX.size();
-        X=new double[size][SensorBean.FEAT_NUM*WINDOW_SIZE];
-        Y=new int[size];
-        for(int i=0;i<size;i++){
-            X[i]=tX.get(i);
-            Y[i]=tY.get(i);
+        service.logToFront("Dataset | begin to generate dataset "+ tX.size());
+        int size = tX.size();
+        X = new double[size][SensorBean.FEAT_NUM * WINDOW_SIZE];
+        Y = new int[size];
+        for (int i = 0; i < size; i++) {
+            X[i] = tX.get(i);
+            Y[i] = tY.get(i);
         }
     }
 
