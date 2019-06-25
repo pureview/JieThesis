@@ -318,7 +318,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case LABEL_DRAW:
-                        draw(intent.getStringExtra(LABEL_DRAW), labelChart);
+                        draw(intent.getStringExtra(MAIN_ACTION_DATA),
+                                labelChart);
                         tvLabelTitle.setText(intent.getStringExtra(TITLE));
                         break;
                     case PREDICT_DRAW:

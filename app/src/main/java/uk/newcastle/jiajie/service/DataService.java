@@ -382,7 +382,7 @@ public class DataService extends Service {
                         int size = bytes.length;
                         streamBuffer.append(new String(bytes));
                         if (bytes[size - 2] == '\r' && bytes[size - 1] == '\n') {
-                            logToConsole("Finish reading buffer, status is " + serviceStatus);
+                            // logToConsole("Finish reading buffer, status is " + serviceStatus);
                             String buff = streamBuffer.toString();
                             switch (serviceStatus) {
                                 case FREE:
