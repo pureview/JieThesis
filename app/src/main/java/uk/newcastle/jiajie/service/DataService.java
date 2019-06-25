@@ -219,11 +219,11 @@ public class DataService extends Service {
     private void drawChart(List<SensorBean> data,
                            String type,
                            String title) {
-        logToConsole("Begin draw chart: " + type + "|" + title);
         StringBuilder sb = new StringBuilder();
         for (SensorBean sensorBean : data) {
             sb.append(sensorBean).append('\n');
         }
+        logToConsole("Begin draw chart: " + type + "|" + title + "|" + sb);
         Intent intent = new Intent();
         intent.setAction(type);
         intent.putExtra(MAIN_ACTION_DATA, sb.toString());
@@ -289,7 +289,7 @@ public class DataService extends Service {
 
     public void logToFront(String msg) {
         logToConsole(msg);
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent();
         intent.setAction(MAIN_ACTION_LOG);
         intent.putExtra(MAIN_ACTION_DATA, msg);
         sendBroadcast(intent);

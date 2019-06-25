@@ -332,6 +332,9 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         IntentFilter filter = new IntentFilter(MAIN_ACTION_CMD);
+        filter.addAction(MAIN_ACTION_LOG);
+        filter.addAction(PREDICT_DRAW);
+        filter.addAction(LABEL_DRAW);
         this.registerReceiver(broadcastReceiver, filter);
     }
 
