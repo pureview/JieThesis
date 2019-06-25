@@ -349,6 +349,9 @@ public class MainActivity extends AppCompatActivity {
         List<Entry> entryZ = new ArrayList<>();
         int ind = 0;
         for (String line : stringExtra.split("\n")) {
+            if(!line.contains(",")){
+                continue;
+            }
             entryX.add(new Entry(ind, Integer.valueOf(line.split(",")[0])));
             entryY.add(new Entry(ind, Integer.valueOf(line.split(",")[1])));
             entryZ.add(new Entry(ind, Integer.valueOf(line.split(",")[2])));
