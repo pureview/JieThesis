@@ -219,6 +219,7 @@ public class DataService extends Service {
     private void drawChart(List<SensorBean> data,
                            String type,
                            String title) {
+        logToConsole("Begin draw chart: " + type + "|" + title);
         StringBuilder sb = new StringBuilder();
         for (SensorBean sensorBean : data) {
             sb.append(sensorBean).append('\n');
@@ -234,9 +235,6 @@ public class DataService extends Service {
      * Process predict data
      */
     private void processPredictData(String data) {
-        if (curLabel == null || curLabel.equals("")) {
-            return;
-        }
         if (rfModel == null) {
             logToFront("Please train the model first");
             return;
@@ -246,7 +244,7 @@ public class DataService extends Service {
             String label = rfModel.predict(cache);
             cache = cache.subList(predictDrawStride, cache.size());
             drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
-                    LABEL_DRAW, label);
+                    PREDICT_DRAW, label);
             logToFront("Predict result: " + label);
         }
     }
@@ -384,11 +382,10 @@ public class DataService extends Service {
                         int size = bytes.length;
                         streamBuffer.append(new String(bytes));
                         if (bytes[size - 2] == '\r' && bytes[size - 1] == '\n') {
-                            logToConsole("Finish reading buffer");
+                            logToConsole("Finish reading buffer, status is " + serviceStatus);
                             String buff = streamBuffer.toString();
                             switch (serviceStatus) {
                                 case FREE:
-                                    //logToConsole("Receive data, but I will do nothing");
                                     break;
                                 case LABEL:
                                     processLabelData(buff);
