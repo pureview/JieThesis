@@ -224,7 +224,7 @@ public class DataService extends Service {
         for (SensorBean sensorBean : data) {
             sb.append(sensorBean).append('\n');
         }
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent();
         intent.setAction(type);
         intent.putExtra(MAIN_ACTION_DATA, sb.toString());
         intent.putExtra(TITLE, title);
