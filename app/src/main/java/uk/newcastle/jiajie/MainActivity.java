@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initPredictWidgets() {
         predictChart = findViewById(R.id.chart_predict);
-        initPredictDummy();
+        // initPredictDummy();
         tvPredictTitle = findViewById(R.id.tv_predict_title);
         btnTrain = findViewById(R.id.btn_train);
         btnTrain.setOnClickListener(v -> {
