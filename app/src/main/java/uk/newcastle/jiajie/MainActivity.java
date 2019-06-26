@@ -355,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
             entryX.add(new Entry(ind, Integer.valueOf(line.split(",")[0])));
             entryY.add(new Entry(ind, Integer.valueOf(line.split(",")[1])));
             entryZ.add(new Entry(ind, Integer.valueOf(line.split(",")[2])));
+            ind++;
         }
         LineDataSet dataSetX = new LineDataSet(entryX, "sensorX");
         dataSetX.setColor(Color.BLUE);

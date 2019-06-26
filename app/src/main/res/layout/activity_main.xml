@@ -175,7 +175,7 @@
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_label"
-                android:layout_width="500dp"
+                android:layout_width="300dp"
                 android:layout_height="match_parent" />
         </LinearLayout>
     </ScrollView>
@@ -221,7 +221,7 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_predict"
                 android:layout_width="match_parent"
-                android:layout_height="500dp" />
+                android:layout_height="300dp" />
         </LinearLayout>
     </ScrollView>
 
