@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 
 import java.util.List;
+
 import org.slf4j.Logger;
 
 import smile.classification.RandomForest;
@@ -28,6 +29,7 @@ public class RFModel {
         int[] y = dataset.getY();
         service.logToFront("RFModel | Begin training");
         randomForest = new RandomForest(x, y, 12);
+        service.logToFront("RFModel train error: " + randomForest.error());
     }
 
     /**

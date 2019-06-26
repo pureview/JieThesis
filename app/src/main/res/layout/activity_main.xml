@@ -157,15 +157,10 @@
             </LinearLayout>
 
 
-            <ScrollView
+            <TextView
+                android:id="@+id/tv_label_log"
                 android:layout_width="match_parent"
-                android:layout_height="200dp">
-
-                <TextView
-                    android:id="@+id/tv_label_log"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </ScrollView>
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/tv_label_title"
@@ -176,7 +171,8 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_label"
                 android:layout_width="match_parent"
-                android:layout_height="300dp" />
+                android:layout_height="300dp"
+                android:layout_marginBottom="50dp" />
         </LinearLayout>
     </ScrollView>
 
@@ -200,11 +196,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/train" />
+
                 <Button
                     android:id="@+id/btn_predict_start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/button_begin" />
+
                 <Button
                     android:id="@+id/btn_predict_stop"
                     android:layout_width="wrap_content"
