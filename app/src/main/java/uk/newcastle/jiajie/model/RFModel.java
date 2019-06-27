@@ -27,7 +27,7 @@ public class RFModel {
         dataset = new Dataset(service);
         double[][] x = dataset.getX();
         int[] y = dataset.getY();
-        service.logToFront("RFModel | Begin training");
+        service.logToFront("RFModel | Begin training. There are " + y.length + " samples for training");
         randomForest = new RandomForest(x, y, 12);
         service.logToFront("RFModel train error: " + randomForest.error());
     }

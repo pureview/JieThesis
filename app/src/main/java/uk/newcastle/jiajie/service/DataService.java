@@ -54,8 +54,8 @@ public class DataService extends Service {
     private RFModel rfModel;
 
     private static final int flushThresh = 500;
-    private static final int trimHead = 100;
-    private static final int trimTail = 100;
+    private static final int trimHead = 0;
+    private static final int trimTail = 0;
     private static final int predictDrawStride = 25;
 
     @Override
@@ -159,6 +159,9 @@ public class DataService extends Service {
      * Trim current file
      */
     private void trimFile() {
+        if (trimHead == 0 && trimTail == 0) {
+            return;
+        }
         try {
             List<String> holder = new LinkedList<>();
             FileInputStream in = openFileInput(curFileName);
