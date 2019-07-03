@@ -231,10 +231,8 @@ public class DataService extends Service {
                 BufferedReader bi = new BufferedReader(new InputStreamReader(in));
                 // Get name
                 File file = new File(Environment.getRootDirectory() + "/Jie", name);
-                if (!file.mkdirs()) {
-                    logToFront("File cannot be created.");
-                    continue;
-                }
+                logToFront("Write path:" + file.getAbsolutePath());
+                file.mkdirs();
                 FileOutputStream out = new FileOutputStream(file);
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
                 String line;
