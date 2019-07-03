@@ -60,16 +60,16 @@ public class Dataset {
                 FileInputStream in = service.openFileInput(s);
                 BufferedReader bi = new BufferedReader(new InputStreamReader(in));
                 String line;
-                int counter=0;
+                int counter = 0;
                 while ((line = bi.readLine()) != null) {
                     if (line.length() > 0) {
                         SensorBean sensorBean = new SensorBean(line);
                         transformForTrain(sensorBean, curLabel);
                     }
-                    counter+=1;
+                    counter += 1;
                 }
                 service.logToFront("Dataset | This file has " + counter + " lines. " +
-                "Begin generate dataset");
+                        "Begin generate dataset");
                 bi.close();
                 in.close();
             } catch (IOException e) {
@@ -84,7 +84,7 @@ public class Dataset {
      * Generate x y from cache
      */
     private void generateXY() {
-        service.logToFront("Dataset | begin to generate dataset "+ tX.size());
+        service.logToFront("Dataset | begin to generate dataset " + tX.size());
         int size = tX.size();
         X = new double[size][SensorBean.FEAT_NUM * WINDOW_SIZE];
         Y = new int[size];
@@ -163,5 +163,9 @@ public class Dataset {
      */
     public String translate(int sy) {
         return labelList.get(sy);
+    }
+
+    public int getNumLabel() {
+        return labelList.size();
     }
 }

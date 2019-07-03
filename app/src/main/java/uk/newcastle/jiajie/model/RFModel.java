@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 
 import smile.classification.RandomForest;
 import uk.newcastle.jiajie.bean.SensorBean;
+import uk.newcastle.jiajie.interfaces.Model;
 import uk.newcastle.jiajie.service.DataService;
 
 /**
@@ -17,7 +18,7 @@ import uk.newcastle.jiajie.service.DataService;
  * @date 20190622
  * @description Random forest model
  */
-public class RFModel {
+public class RFModel implements Model {
 
     private RandomForest randomForest;
     private Dataset dataset;
@@ -35,6 +36,7 @@ public class RFModel {
     /**
      * Predict the coming data
      */
+    @Override
     public String predict(List<SensorBean> sensorBeans) {
         double[] sx = dataset.transformForPredict(sensorBeans);
         int sy = randomForest.predict(sx);

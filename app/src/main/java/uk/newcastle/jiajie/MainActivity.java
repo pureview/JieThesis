@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationBar navigationView;
     private ScrollView containerHome, containerLabel, containerPredict;
     private LineChart labelChart, predictChart;
-    private Button labelStart, labelStop, labelRevert, labelData;
+    private Button labelStart, labelStop, labelRevert, labelData, labelExport;
     private TextView tvLabelLog, tvPredictTitle, tvLabelTitle;
     private EditText etLabel;
     private Button btnTrain, btnPredictBegin, btnPredictStop;
@@ -83,15 +83,15 @@ public class MainActivity extends AppCompatActivity {
             toast("Begin training. Please switch to home tab for logs");
             sendCommand(TRAIN, "");
         });
-        btnPredictBegin=findViewById(R.id.btn_predict_start);
-        btnPredictBegin.setOnClickListener(v->{
+        btnPredictBegin = findViewById(R.id.btn_predict_start);
+        btnPredictBegin.setOnClickListener(v -> {
             toast("Begin predict");
-            sendCommand(ACTION_PREDICT,"");
+            sendCommand(ACTION_PREDICT, "");
         });
-        btnPredictStop=findViewById(R.id.btn_predict_stop);
-        btnPredictStop.setOnClickListener(v->{
+        btnPredictStop = findViewById(R.id.btn_predict_stop);
+        btnPredictStop.setOnClickListener(v -> {
             toast("Stop predict");
-            sendCommand(ACTION_STOP,"");
+            sendCommand(ACTION_STOP, "");
         });
     }
 
@@ -99,8 +99,8 @@ public class MainActivity extends AppCompatActivity {
         List<Entry> entryX = new ArrayList<>();
         List<Entry> entryY = new ArrayList<>();
         List<Entry> entryZ = new ArrayList<>();
-        Random random=new Random();
-        for (int i=0;i<10;i++) {
+        Random random = new Random();
+        for (int i = 0; i < 10; i++) {
             entryX.add(new Entry(i, random.nextFloat()));
             entryY.add(new Entry(i, random.nextFloat()));
             entryZ.add(new Entry(i, random.nextFloat()));
@@ -135,6 +135,10 @@ public class MainActivity extends AppCompatActivity {
         labelStop = findViewById(R.id.btn_label_stop);
         labelStop.setOnClickListener(o -> {
             sendCommand(ACTION_STOP, "");
+        });
+        labelExport = findViewById(R.id.btn_export);
+        labelExport.setOnClickListener(v -> {
+            sendCommand(EXPORT, "");
         });
         labelRevert = findViewById(R.id.btn_label_revert);
         labelRevert.setOnClickListener(v -> {
@@ -339,17 +343,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void draw(String stringExtra, LineChart chart) {
-        if(stringExtra==null){
+        if (stringExtra == null) {
             logToConsole("Draw data is null");
             return;
         }
-        logToConsole("Ready to draw | "+ stringExtra);
+        logToConsole("Ready to draw | " + stringExtra);
         List<Entry> entryX = new ArrayList<>();
         List<Entry> entryY = new ArrayList<>();
         List<Entry> entryZ = new ArrayList<>();
         int ind = 0;
         for (String line : stringExtra.split("\n")) {
-            if(!line.contains(",")){
+            if (!line.contains(",")) {
                 continue;
             }
             entryX.add(new Entry(ind, Integer.valueOf(line.split(",")[0])));

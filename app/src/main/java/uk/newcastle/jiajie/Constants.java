@@ -26,5 +26,6 @@ public class Constants {
     public static final int WINDOW_SIZE =50;
     public static final int PADDING_SIZE =25;
     public static final String TRAIN = "train";
+    public static final String EXPORT = "export";
     public static final String ACTION_BROAD = "action_broadcast";
 }

@@ -2,6 +2,7 @@ package uk.newcastle.jiajie.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,6 +16,7 @@ import com.inuker.bluetooth.library.search.response.SearchResponse;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -129,6 +131,9 @@ public class DataService extends Service {
             case TRAIN:
                 logToConsole("Begin train");
                 train();
+            case EXPORT:
+                logToFront("Begin export");
+                export();
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -197,6 +202,53 @@ public class DataService extends Service {
         }
         label_ind++;
         curFileName = curLabel + "_" + label_ind;
+    }
+
+    /**
+     * Checks if external storage is available for read and write
+     */
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Output dataset to external storage
+     */
+    private void export() {
+        if (!isExternalStorageWritable()) {
+            logToFront("External storage is not available");
+            return;
+        }
+        String[] currentFiles = fileList();
+        for (String name : currentFiles) {
+            logToFront("Copying " + name);
+            try {
+                FileInputStream in = openFileInput(name);
+                BufferedReader bi = new BufferedReader(new InputStreamReader(in));
+                // Get name
+                File file = new File(Environment.getRootDirectory() + "/Jie", name);
+                if (!file.mkdirs()) {
+                    logToFront("File cannot be created.");
+                    continue;
+                }
+                FileOutputStream out = new FileOutputStream(file);
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
+                String line;
+                while ((line = bi.readLine()) != null) {
+                    bw.write(line + '\n');
+                }
+                bi.close();
+                in.close();
+                bw.close();
+                out.close();
+            } catch (IOException e) {
+                logToFront(e.getMessage());
+            }
+        }
     }
 
     /**

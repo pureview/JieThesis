@@ -154,8 +154,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/label_data" />
-            </LinearLayout>
 
+                <Button
+                    android:id="@+id/btn_export"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/export" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_label_log"

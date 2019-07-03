@@ -27,4 +27,5 @@
     <string name="revert">revert</string>
     <string name="label_data">label_data</string>
     <string name="train">Train</string>
+    <string name="export">Export</string>
 </resources>
