@@ -231,15 +231,18 @@ public class DataService extends Service {
                 BufferedReader bi = new BufferedReader(new InputStreamReader(in));
                 // Get name
                 logToFront("Data dir:" + Environment.getDataDirectory());
-                File file = new File(Environment.getExternalStorageDirectory() + "/Jie", name);
+                File dir = new File(Environment.getExternalStorageDirectory() + "/Jie");
                 logToFront("Write path:" + file.getAbsolutePath());
-                file.mkdirs();
+                dir.mkdirs();
+                File file=new File(dir, name);
+                // file.createNewFile();
                 FileOutputStream out = new FileOutputStream(file);
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
                 String line;
                 while ((line = bi.readLine()) != null) {
                     bw.write(line + '\n');
                 }
+                bw.flush();
                 bi.close();
                 in.close();
                 bw.close();
