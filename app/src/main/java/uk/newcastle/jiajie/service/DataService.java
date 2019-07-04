@@ -232,9 +232,9 @@ public class DataService extends Service {
                 // Get name
                 logToFront("Data dir:" + Environment.getDataDirectory());
                 File dir = new File(Environment.getExternalStorageDirectory() + "/Jie");
-                logToFront("Write path:" + file.getAbsolutePath());
                 dir.mkdirs();
                 File file=new File(dir, name);
+                logToFront("Write path:" + file.getAbsolutePath());
                 // file.createNewFile();
                 FileOutputStream out = new FileOutputStream(file);
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
