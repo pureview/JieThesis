@@ -22,6 +22,7 @@ public class RFModel implements Model {
 
     private RandomForest randomForest;
     private Dataset dataset;
+    private DataService dataService;
 
     public RFModel(DataService service) {
         service.logToFront("RFModel | Load dataset");
@@ -39,7 +40,10 @@ public class RFModel implements Model {
     @Override
     public String predict(List<SensorBean> sensorBeans) {
         double[] sx = dataset.transformForPredict(sensorBeans);
+        Long tik = System.currentTimeMillis();
         int sy = randomForest.predict(sx);
+        Long tok = System.currentTimeMillis();
+        dataService.logToFront("Predict spend "+(tok-tik)/1000.+" seconds");
         return dataset.translate(sy);
     }
 }

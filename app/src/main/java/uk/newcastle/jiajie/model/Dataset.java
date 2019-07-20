@@ -68,6 +68,7 @@ public class Dataset {
                     }
                     counter += 1;
                 }
+                cache.clear();
                 service.logToFront("Dataset | This file has " + counter + " lines. " +
                         "Begin generate dataset");
                 bi.close();

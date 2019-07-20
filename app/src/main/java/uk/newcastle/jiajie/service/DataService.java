@@ -231,7 +231,7 @@ public class DataService extends Service {
                 BufferedReader bi = new BufferedReader(new InputStreamReader(in));
                 // Get name
                 logToFront("Data dir:" + Environment.getDataDirectory());
-                File dir = new File(Environment.getExternalStorageDirectory() + "/Jie");
+                File dir = new File(Environment.getExternalStorageDirectory(), "Jie");
                 dir.mkdirs();
                 File file=new File(dir, name);
                 logToFront("Write path:" + file.getAbsolutePath());

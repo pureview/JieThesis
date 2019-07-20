@@ -299,7 +299,8 @@ public class MainActivity extends AppCompatActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                logToConsole("Receive cmd:" + intent.getAction() + "|" + intent.getStringExtra(MAIN_ACTION_DATA));
+                logToConsole("Receive cmd:" + intent.getAction() + "|" +
+                        intent.getStringExtra(MAIN_ACTION_DATA));
                 switch (intent.getAction()) {
                     case MAIN_ACTION_LOG:
                         logToFront(intent.getStringExtra(MAIN_ACTION_DATA));
