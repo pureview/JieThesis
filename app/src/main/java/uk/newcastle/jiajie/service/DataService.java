@@ -233,7 +233,7 @@ public class DataService extends Service {
                 logToFront("Data dir:" + Environment.getDataDirectory());
                 File dir = new File(Environment.getExternalStorageDirectory(), "Jie");
                 dir.mkdirs();
-                File file=new File(dir, name);
+                File file = new File(dir, name);
                 logToFront("Write path:" + file.getAbsolutePath());
                 // file.createNewFile();
                 FileOutputStream out = new FileOutputStream(file);
@@ -259,10 +259,13 @@ public class DataService extends Service {
     private void flushCache() {
         try {
             FileOutputStream out = openFileOutput(curFileName, MODE_PRIVATE);
+            long tik = System.currentTimeMillis();
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
             for (SensorBean sensorBean : cache) {
                 bw.write(sensorBean.toString() + '\n');
             }
+            long tok = System.currentTimeMillis();
+            logToFront("Flush cache of size " + cache.size() + " into disk spend " + (tok - tik) / 1000. + " seconds");
             bw.close();
             out.close();
             // Send data to front end and draw chart
