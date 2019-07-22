@@ -131,9 +131,15 @@ public class DataService extends Service {
             case TRAIN:
                 logToConsole("Begin train");
                 train();
+                break;
             case EXPORT:
                 logToFront("Begin export");
                 export();
+                break;
+            case IMPORT:
+                logToFront("Begin import");
+                incorporate();
+                break;
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -213,6 +219,40 @@ public class DataService extends Service {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Import file from external storage
+     */
+    private void incorporate() {
+        if (!isExternalStorageWritable()) {
+            logToFront("External storage is not available");
+            return;
+        }
+        File dir = new File(Environment.getExternalStorageDirectory(), "Jie");
+        logToFront("Data dir:" + Environment.getDataDirectory());
+        dir.mkdirs();
+        for (File name : dir.listFiles()) {
+            logToFront("Copying " + name.getName());
+            try {
+                FileInputStream in = new FileInputStream(name);
+                BufferedReader bi = new BufferedReader(new InputStreamReader(in));
+                // Get name
+                FileOutputStream out = openFileOutput(name.getName(),MODE_PRIVATE);
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
+                String line;
+                while ((line = bi.readLine()) != null) {
+                    bw.write(line + '\n');
+                }
+                bw.flush();
+                bi.close();
+                in.close();
+                bw.close();
+                out.close();
+            } catch (IOException e) {
+                logToFront(e.getMessage());
+            }
+        }
     }
 
     /**

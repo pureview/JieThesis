@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationBar navigationView;
     private ScrollView containerHome, containerLabel, containerPredict;
     private LineChart labelChart, predictChart;
-    private Button labelStart, labelStop, labelRevert, labelData, labelExport;
+    private Button labelStart, labelStop, labelRevert, labelData, labelExport, labelImport;
     private TextView tvLabelLog, tvPredictTitle, tvLabelTitle;
     private EditText etLabel;
     private Button btnTrain, btnPredictBegin, btnPredictStop;
@@ -139,6 +139,10 @@ public class MainActivity extends AppCompatActivity {
         labelExport = findViewById(R.id.btn_export);
         labelExport.setOnClickListener(v -> {
             sendCommand(EXPORT, "");
+        });
+        labelExport = findViewById(R.id.btn_import);
+        labelExport.setOnClickListener(v -> {
+            sendCommand(IMPORT, "");
         });
         labelRevert = findViewById(R.id.btn_label_revert);
         labelRevert.setOnClickListener(v -> {

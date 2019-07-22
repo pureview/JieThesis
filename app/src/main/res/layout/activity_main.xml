@@ -160,6 +160,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/export" />
+                <Button
+                    android:id="@+id/btn_import"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/incorporate" />
             </LinearLayout>
 
             <TextView
