@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import uk.newcastle.jiajie.Constants;
@@ -58,7 +60,7 @@ public class DataService extends Service {
     private static final int flushThresh = 500;
     private static final int trimHead = 0;
     private static final int trimTail = 0;
-    private static final int predictDrawStride = 25;
+    private static final int predictDrawStride = 2;
 
     @Override
     public void onCreate() {
@@ -79,11 +81,6 @@ public class DataService extends Service {
         notification.defaults = Notification.DEFAULT_SOUND;
         startForeground(519, notification);
         */
-        btClient = new BluetoothClient(this);
-        if (!btClient.isBluetoothOpened()) {
-            toast("Please open bluetooth");
-            btClient.openBluetooth();
-        }
         super.onCreate();
     }
 
@@ -91,6 +88,13 @@ public class DataService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.getAction() == null) {
             return super.onStartCommand(intent, flags, startId);
+        }
+        if (btClient == null) {
+            if (!btClient.isBluetoothOpened()) {
+                toast("Please open bluetooth");
+                btClient.openBluetooth();
+            }
+            btClient = new BluetoothClient(this);
         }
         switch (intent.getAction()) {
             case CONNECT_DEVICE:
@@ -238,7 +242,7 @@ public class DataService extends Service {
                 FileInputStream in = new FileInputStream(name);
                 BufferedReader bi = new BufferedReader(new InputStreamReader(in));
                 // Get name
-                FileOutputStream out = openFileOutput(name.getName(),MODE_PRIVATE);
+                FileOutputStream out = openFileOutput(name.getName(), MODE_PRIVATE);
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
                 String line;
                 while ((line = bi.readLine()) != null) {
@@ -340,13 +344,26 @@ public class DataService extends Service {
             return;
         }
         cache.addAll(DecodeUtil.decodeBytes(data, curLabel));
-        if (cache.size() > WINDOW_SIZE) {
-            String label = rfModel.predict(cache);
-            drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
-                    PREDICT_DRAW, label);
-            cache = cache.subList(predictDrawStride, cache.size());
-            logToFront("Predict result: " + label);
+        Map<String, Integer> labelMap = new HashMap<>();
+        Integer maxCount = 0;
+        String finalLabel = "";
+        if (cache.size() > PREDICT_CACHE_SIZE) {
+            while (cache.size() >= WINDOW_SIZE) {
+                String label = rfModel.predict(cache.subList(0, WINDOW_SIZE));
+                if (!labelMap.containsKey(label)) {
+                    labelMap.put(label, 0);
+                }
+                labelMap.put(label, labelMap.get(label) + 1);
+                if (labelMap.get(label) > maxCount) {
+                    maxCount = labelMap.get(label);
+                    finalLabel = label;
+                }
+                cache = cache.subList(predictDrawStride, cache.size());
+            }
         }
+        logToFront("Predict result: " + finalLabel);
+        drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
+                PREDICT_DRAW, finalLabel);
     }
 
     /**
