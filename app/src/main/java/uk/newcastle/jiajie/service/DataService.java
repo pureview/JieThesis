@@ -90,11 +90,11 @@ public class DataService extends Service {
             return super.onStartCommand(intent, flags, startId);
         }
         if (btClient == null) {
+            btClient = new BluetoothClient(this);
             if (!btClient.isBluetoothOpened()) {
                 toast("Please open bluetooth");
                 btClient.openBluetooth();
             }
-            btClient = new BluetoothClient(this);
         }
         switch (intent.getAction()) {
             case CONNECT_DEVICE:
