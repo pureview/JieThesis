@@ -26,6 +26,7 @@ public class RFModel implements Model {
     private DataService dataService;
 
     public RFModel(DataService service) {
+        this.dataService = service;
         service.logToFront("RFModel | Load dataset");
         long tik = System.currentTimeMillis();
         dataset = new Dataset(service);
