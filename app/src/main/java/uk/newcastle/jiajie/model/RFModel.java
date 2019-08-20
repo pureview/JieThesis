@@ -5,6 +5,8 @@ import android.os.health.SystemHealthManager;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -36,6 +38,8 @@ public class RFModel implements Model {
         service.logToFront("Load dataset spends " + (tok - tik) / 1000. + " seconds");
         service.logToFront("RFModel | Begin training. There are " + y.length + " samples for training");
         randomForest = new RandomForest(x, y, 12);
+        double[] acc = randomForest.test(x,y);
+        service.logToFront("Training accuracy is: "+ Arrays.toString(acc));
         service.logToFront("Training model spends " + (System.currentTimeMillis() - tok) / 1000. + " seconds");
         service.logToFront("RFModel train error: " + randomForest.error());
     }

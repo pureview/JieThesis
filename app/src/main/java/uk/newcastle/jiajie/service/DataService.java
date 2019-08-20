@@ -60,7 +60,7 @@ public class DataService extends Service {
     private static final int flushThresh = 500;
     private static final int trimHead = 0;
     private static final int trimTail = 0;
-    private static final int predictDrawStride = 2;
+    private static final int predictDrawStride = 20;
 
     @Override
     public void onCreate() {
