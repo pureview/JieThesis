@@ -36,6 +36,7 @@ public class RFModel implements Model {
         int[] pred = randomForest.predict(x);
         String acc = calculateAcc(pred, y);
         service.logToFront("Training accuracy is: " + acc);
+        service.logToFront("Dataset size: "+x.length);
         service.logToFront("Training model spends " + (System.currentTimeMillis() - tok) / 1000. + " seconds");
         service.logToFront("RFModel train error: " + randomForest.error());
     }

@@ -369,6 +369,7 @@ public class DataService extends Service {
             }
         }
         logToFront("Predict result: " + finalLabel);
+        sendCommand("LABEL", finalLabel);
         if (enableDraw) {
             drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
                     PREDICT_DRAW, finalLabel);

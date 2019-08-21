@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initPredictWidgets() {
-        predictSwitch=findViewById(R.id.predict_switch);
+        predictSwitch = findViewById(R.id.predict_switch);
         predictSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             sendCommand(ENABLE_DRAW, String.valueOf(isChecked));
         });
@@ -318,6 +318,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case MAIN_ACTION_CMD:
                         switch (intent.getStringExtra(MAIN_ACTION_CMD)) {
+                            case "LABEL":
+                                tvPredictTitle.setText(intent.getStringExtra(MAIN_ACTION_DATA));
+                                break;
                             case CLEAR:
                                 devices.clear();
                                 deviceAdapter.notifyDataSetChanged();
