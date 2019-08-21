@@ -319,7 +319,10 @@ public class MainActivity extends AppCompatActivity {
                     case MAIN_ACTION_CMD:
                         switch (intent.getStringExtra(MAIN_ACTION_CMD)) {
                             case "LABEL":
-                                tvPredictTitle.setText(intent.getStringExtra(MAIN_ACTION_DATA));
+                                String res=intent.getStringExtra(MAIN_ACTION_DATA);
+                                if(res!=null && res.length()>0) {
+                                    tvPredictTitle.setText(intent.getStringExtra(MAIN_ACTION_DATA));
+                                }
                                 break;
                             case CLEAR:
                                 devices.clear();
