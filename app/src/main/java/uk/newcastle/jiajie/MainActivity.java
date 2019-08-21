@@ -20,9 +20,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvLabelLog, tvPredictTitle, tvLabelTitle;
     private EditText etLabel;
     private Button btnTrain, btnPredictBegin, btnPredictStop;
+    private Switch predictSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initPredictWidgets() {
+        predictSwitch=findViewById(R.id.predict_switch);
+        predictSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            sendCommand(ENABLE_DRAW, String.valueOf(isChecked));
+        });
         predictChart = findViewById(R.id.chart_predict);
         // initPredictDummy();
         tvPredictTitle = findViewById(R.id.tv_predict_title);

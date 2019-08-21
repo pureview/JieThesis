@@ -29,4 +29,5 @@
     <string name="train">Train</string>
     <string name="export">Export</string>
     <string name="incorporate">Import</string>
+    <string name="enable_draw">Enable Draw</string>
 </resources>

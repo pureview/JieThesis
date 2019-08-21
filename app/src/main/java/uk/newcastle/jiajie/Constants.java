@@ -29,5 +29,7 @@ public class Constants {
     public static final String TRAIN = "train";
     public static final String EXPORT = "export";
     public static final String IMPORT = "import";
+    public static final String STRIDE = "stride";
     public static final String ACTION_BROAD = "action_broadcast";
+    public static final String ENABLE_DRAW = "enable_draw";
 }

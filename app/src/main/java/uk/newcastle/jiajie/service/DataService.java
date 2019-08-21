@@ -48,6 +48,8 @@ public class DataService extends Service {
     private ServiceStatusType serviceStatus = ServiceStatusType.FREE;
     // Current label
     private String curLabel;
+    // Enable visualization
+    private boolean enableDraw = false;
     // Bluetooth data structure
     private List<SearchResult> devices = new ArrayList<>();
     private SearchResult curDevice = null;
@@ -60,7 +62,7 @@ public class DataService extends Service {
     private static final int flushThresh = 500;
     private static final int trimHead = 0;
     private static final int trimTail = 0;
-    private static final int predictDrawStride = 20;
+    private int predictDrawStride = 20;
 
     @Override
     public void onCreate() {
@@ -101,6 +103,11 @@ public class DataService extends Service {
                 int pos = Integer.valueOf(intent.getStringExtra(MAIN_ACTION_DATA));
                 connect(pos);
                 break;
+            case STRIDE:
+                predictDrawStride = Integer.valueOf(intent.getStringExtra(MAIN_ACTION_DATA));
+                break;
+            case ENABLE_DRAW:
+                enableDraw = Boolean.getBoolean(intent.getStringExtra(MAIN_ACTION_DATA));
             case SCAN:
                 initBle();
                 break;
@@ -362,8 +369,10 @@ public class DataService extends Service {
             }
         }
         logToFront("Predict result: " + finalLabel);
-        drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
-                PREDICT_DRAW, finalLabel);
+        if (enableDraw) {
+            drawChart(cache.subList(Math.max(0, cache.size() - 50), cache.size()),
+                    PREDICT_DRAW, finalLabel);
+        }
     }
 
     /**

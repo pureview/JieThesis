@@ -225,6 +225,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold" />
+            <Switch
+                android:id="@+id/predict_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/enable_draw"
+                android:checked="false"
+                />
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_predict"

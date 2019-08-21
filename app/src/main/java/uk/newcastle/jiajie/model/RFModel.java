@@ -1,15 +1,9 @@
 package uk.newcastle.jiajie.model;
 
-
-import android.os.health.SystemHealthManager;
-import android.util.AttributeSet;
-import android.util.Log;
-
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-
-import org.slf4j.Logger;
+import java.util.Map;
 
 import smile.classification.RandomForest;
 import uk.newcastle.jiajie.bean.SensorBean;
@@ -38,10 +32,26 @@ public class RFModel implements Model {
         service.logToFront("Load dataset spends " + (tok - tik) / 1000. + " seconds");
         service.logToFront("RFModel | Begin training. There are " + y.length + " samples for training");
         randomForest = new RandomForest(x, y, 12);
-        double[] acc = randomForest.test(x,y);
-        service.logToFront("Training accuracy is: "+ Arrays.toString(acc));
+        service.logToFront("Begin testing.");
+        int[] pred = randomForest.predict(x);
+        String acc = calculateAcc(pred, y);
+        service.logToFront("Training accuracy is: " + acc);
         service.logToFront("Training model spends " + (System.currentTimeMillis() - tok) / 1000. + " seconds");
         service.logToFront("RFModel train error: " + randomForest.error());
+    }
+
+    /**
+     * Calculate the training accuracy of the model
+     */
+    private String calculateAcc(int[] pred,
+                                int[] y) {
+        double counter = 0.;
+        for (int i = 0; i < pred.length; i++) {
+            if (pred[i] == y[i]) {
+                counter += 1;
+            }
+        }
+        return String.valueOf(counter / pred.length);
     }
 
     /**
