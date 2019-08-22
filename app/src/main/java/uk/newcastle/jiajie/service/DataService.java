@@ -478,7 +478,7 @@ public class DataService extends Service {
                 logToFront("Connect success " + bleGattProfile.toString());
                 sendCommand(CONNECT_DEVICE, "Connected: " + curDevice.getName());
             } else {
-                curDevice = null;
+                // curDevice = null;
                 logToFront("Connect fail, code = " + i);
             }
         });

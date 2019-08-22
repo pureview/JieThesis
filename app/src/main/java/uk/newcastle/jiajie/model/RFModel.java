@@ -30,7 +30,7 @@ public class RFModel implements Model {
         long tok = System.currentTimeMillis();
         service.logToFront("Load dataset spends " + (tok - tik) / 1000. + " seconds");
         service.logToFront("RFModel | Begin training. There are " + y.length + " samples for training");
-        randomForest = new RandomForest(x, y, 12);
+        randomForest = new RandomForest(x, y, 10);
         service.logToFront("Begin testing.");
         int[] pred = randomForest.predict(x);
         String acc = calculateAcc(pred, y);
@@ -67,7 +67,9 @@ public class RFModel implements Model {
         for (Integer key : clsCounter.keySet()) {
             sb.append(dataset.translate(key))
                     .append(" : ")
-                    .append(truthCounter.get(key) / clsCounter.get(key))
+                    .append(truthCounter.get(key))
+                    .append(" % ")
+                    .append(((double)truthCounter.get(key)) / clsCounter.get(key))
                     .append(", ");
         }
         if (sb.length() > 2) {
