@@ -25,6 +25,7 @@ public class Constants {
     public static final String PREDICT_DRAW = "predict_draw";
     public static final int WINDOW_SIZE =50;
     public static final int PADDING_SIZE =25;
+    public static final int TRAINING_PADDING_SIZE =1;
     public static final int PREDICT_CACHE_SIZE =100;
     public static final String TRAIN = "train";
     public static final String EXPORT = "export";

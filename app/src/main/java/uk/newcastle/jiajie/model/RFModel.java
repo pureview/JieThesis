@@ -1,8 +1,5 @@
 package uk.newcastle.jiajie.model;
 
-import android.util.Pair;
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

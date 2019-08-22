@@ -18,6 +18,7 @@ import uk.newcastle.jiajie.bean.SensorBean;
 import uk.newcastle.jiajie.service.DataService;
 
 import static uk.newcastle.jiajie.Constants.PADDING_SIZE;
+import static uk.newcastle.jiajie.Constants.TRAINING_PADDING_SIZE;
 import static uk.newcastle.jiajie.Constants.WINDOW_SIZE;
 
 /**
@@ -135,7 +136,7 @@ public class Dataset {
      */
     private void transformForTrain(SensorBean sensorBean, int curLabel) {
         if (cache.size() == WINDOW_SIZE) {
-            cache = cache.subList(PADDING_SIZE, WINDOW_SIZE);
+            cache = cache.subList(TRAINING_PADDING_SIZE, WINDOW_SIZE);
         }
         cache.add(sensorBean);
         if (cache.size() == WINDOW_SIZE) {
