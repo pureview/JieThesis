@@ -1,5 +1,7 @@
 package uk.newcastle.jiajie.model;
 
+import android.util.Pair;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +38,7 @@ public class RFModel implements Model {
         int[] pred = randomForest.predict(x);
         String acc = calculateAcc(pred, y);
         service.logToFront("Training accuracy is: " + acc);
-        service.logToFront("Dataset size: "+x.length);
+        service.logToFront("Dataset size: " + x.length);
         service.logToFront("Training model spends " + (System.currentTimeMillis() - tok) / 1000. + " seconds");
         service.logToFront("RFModel train error: " + randomForest.error());
     }
@@ -47,12 +49,34 @@ public class RFModel implements Model {
     private String calculateAcc(int[] pred,
                                 int[] y) {
         double counter = 0.;
+        Map<Integer, Integer> clsCounter = new HashMap<>();
+        Map<Integer, Integer> truthCounter = new HashMap<>();
         for (int i = 0; i < pred.length; i++) {
+            if (!clsCounter.containsKey(y[i])) {
+                clsCounter.put(y[i], 0);
+            }
+            if (!truthCounter.containsKey(y[i])) {
+                truthCounter.put(y[i], 0);
+            }
             if (pred[i] == y[i]) {
                 counter += 1;
+                truthCounter.put(y[i], truthCounter.get(y[i]) + 1);
             }
+            clsCounter.put(y[i], clsCounter.get(y[i]) + 1);
         }
-        return String.valueOf(counter / pred.length);
+        StringBuilder sb = new StringBuilder();
+        sb.append(counter / pred.length)
+                .append(" | ");
+        for (Integer key : clsCounter.keySet()) {
+            sb.append(dataset.translate(key))
+                    .append(" : ")
+                    .append(truthCounter.get(key) / clsCounter.get(key))
+                    .append(", ");
+        }
+        if (sb.length() > 2) {
+            sb.delete(sb.length() - 2, sb.length());
+        }
+        return sb.toString();
     }
 
     /**
