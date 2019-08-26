@@ -240,6 +240,10 @@ public class DataService extends Service {
             logToFront("External storage is not available");
             return;
         }
+        toast("Ready to  delete already labeled data");
+        for(String sb: fileList()){
+            deleteFile(sb);
+        }
         File dir = new File(Environment.getExternalStorageDirectory(), "Jie");
         logToFront("Data dir:" + Environment.getDataDirectory());
         dir.mkdirs();
